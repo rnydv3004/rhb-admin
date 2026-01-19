@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Newspaper, Image as ImageIcon, Users, LogOut } from "lucide-react";
+import { Newspaper, Image as ImageIcon, Users, LogOut, Crown } from "lucide-react";
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -35,6 +35,14 @@ export default function DashboardPage() {
             href: "/dashboard/admins",
             color: "bg-emerald-50 text-emerald-700 border-emerald-200",
             iconColor: "text-emerald-600",
+        },
+        {
+            title: "Administration",
+            description: "Manage officers, advisors, and delegations.",
+            icon: Crown,
+            href: "/dashboard/administration",
+            color: "bg-amber-50 text-amber-700 border-amber-200",
+            iconColor: "text-amber-600",
         },
     ];
 
