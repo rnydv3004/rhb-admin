@@ -62,10 +62,17 @@ export async function POST(req: Request) {
             }
         }
 
-        // 3. Clear Image if not High Council (Strict enforcement)
+        // 3. Clear Image if not High Council (Strict enforcement) & Convert Drive Links
         let finalImageUrl = image_url;
         if (!lowerTitle.includes("chancellor") && !lowerTitle.includes("vice-chancellor")) {
             finalImageUrl = null;
+        } else if (finalImageUrl) {
+            // Google Drive Link Converter (Serverside fallback)
+            const driveRegex = /drive\.google\.com\/file\/d\/([-_\w]+)/;
+            const match = finalImageUrl.match(driveRegex);
+            if (match && match[1]) {
+                finalImageUrl = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w2000`;
+            }
         }
 
         const result = await query<any>(

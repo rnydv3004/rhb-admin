@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { query } from "@/lib/db";
 
 // GET single member (optional but good for completeness)
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const id = params.id;
+        const { id } = await params;
         const members = await query("SELECT * FROM royal_administration WHERE id = ?", [id]);
 
         if (!members || members.length === 0) {
@@ -18,9 +18,9 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const id = params.id;
+        const { id } = await params;
         const body = await req.json();
         const {
             name,
@@ -60,12 +60,19 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
             }
         }
 
-        // 3. Clear Image if not High Council (Strict enforcement)
+        // 3. Clear Image if not High Council (Strict enforcement) & Convert Drive Links
         let finalImageUrl = image_url;
         if (role_title) {
             const lowerTitle = role_title.toLowerCase();
             if (!lowerTitle.includes("chancellor") && !lowerTitle.includes("vice-chancellor")) {
                 finalImageUrl = null;
+            } else if (finalImageUrl) {
+                // Google Drive Link Converter (Serverside fallback)
+                const driveRegex = /drive\.google\.com\/file\/d\/([-_\w]+)/;
+                const match = finalImageUrl.match(driveRegex);
+                if (match && match[1]) {
+                    finalImageUrl = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w2000`;
+                }
             }
         }
 
@@ -84,8 +91,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
                 name || null,
                 role_title,
                 category,
-                display_order,
-                is_active,
+                display_order || 0,
+                is_active !== undefined ? is_active : 1,
                 bio || null,
                 finalImageUrl || null,
                 id
@@ -99,9 +106,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const id = params.id;
+        const { id } = await params;
         await query("DELETE FROM royal_administration WHERE id = ?", [id]);
         return NextResponse.json({ message: "Member deleted successfully" });
     } catch (error) {

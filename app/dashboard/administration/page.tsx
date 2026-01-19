@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Plus, Loader2, Image as ImageIcon, Trash2, Edit, Copy, MoreVertical, X, UploadCloud } from "lucide-react";
+import { Plus, Loader2, Image as ImageIcon, Trash2, Edit, Copy, MoreVertical, X } from "lucide-react";
 import Image from "next/image";
 
 interface Member {
@@ -35,9 +35,6 @@ export default function AdministrationPage() {
         bio: "",
         image_url: ""
     });
-
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [uploadingImage, setUploadingImage] = useState(false);
 
     useEffect(() => {
         fetchMembers();
@@ -100,34 +97,7 @@ export default function AdministrationPage() {
         }
     };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files || !e.target.files[0]) return;
 
-        const file = e.target.files[0];
-        setUploadingImage(true);
-
-        const uploadData = new FormData();
-        uploadData.append("file", file);
-
-        try {
-            const res = await fetch("/api/upload", {
-                method: "POST",
-                body: uploadData
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                setFormData(prev => ({ ...prev, image_url: data.url }));
-            } else {
-                alert("Image upload failed");
-            }
-        } catch (error) {
-            console.error("Upload error:", error);
-            alert("Error uploading image");
-        } finally {
-            setUploadingImage(false);
-        }
-    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -351,50 +321,56 @@ export default function AdministrationPage() {
                                 <div className="space-y-4">
                                     <label className="block text-sm font-medium text-slate-700">Profile Image</label>
                                     {isChancellor ? (
-                                        <div
-                                            className={`border-2 border-dashed rounded-xl p-4 flex flex-col items-center justify-center bg-slate-50 transition-colors ${!formData.image_url ? "border-red-300 bg-red-50" : "border-slate-200 hover:border-blue-300"
-                                                }`}
-                                        >
+                                        <div className="space-y-3">
                                             {formData.image_url ? (
-                                                <div className="relative w-32 h-32 rounded-full overflow-hidden mb-3 border border-slate-200">
-                                                    <Image
-                                                        src={formData.image_url}
-                                                        alt="Preview"
-                                                        fill
-                                                        className="object-cover"
-                                                    />
+                                                <div className="flex flex-col items-center">
+                                                    <div className="relative w-32 h-32 rounded-full overflow-hidden mb-3 border border-slate-200 shadow-sm">
+                                                        <Image
+                                                            src={formData.image_url}
+                                                            alt="Preview"
+                                                            fill
+                                                            className="object-cover"
+                                                        />
+                                                    </div>
                                                 </div>
                                             ) : (
-                                                <div className="w-32 h-32 rounded-full bg-slate-200 flex items-center justify-center mb-3 text-slate-400">
+                                                <div className="w-32 h-32 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-300 border border-slate-200">
                                                     <ImageIcon className="w-12 h-12" />
                                                 </div>
                                             )}
 
-                                            <input
-                                                type="file"
-                                                ref={fileInputRef}
-                                                onChange={handleImageUpload}
-                                                className="hidden"
-                                                accept="image/*"
-                                            />
+                                            <div>
+                                                <label className="block text-sm font-medium text-slate-700 mb-1">Image URL <span className="text-red-500">*</span></label>
+                                                <input
+                                                    type="url"
+                                                    value={formData.image_url}
+                                                    onChange={e => {
+                                                        const url = e.target.value;
+                                                        // Check for Google Drive Share Link
+                                                        const driveRegex = /drive\.google\.com\/file\/d\/([-_\w]+)/;
+                                                        const match = url.match(driveRegex);
 
-                                            <button
-                                                type="button"
-                                                onClick={() => fileInputRef.current?.click()}
-                                                disabled={uploadingImage}
-                                                className="text-sm font-bold text-blue-600 hover:text-blue-800 flex items-center gap-2"
-                                            >
-                                                {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
-                                                {formData.image_url ? "Change Image" : "Upload Image"}
-                                            </button>
-                                            {!formData.image_url && (
-                                                <p className="text-xs text-red-500 mt-2 font-medium">Required for this role.</p>
-                                            )}
+                                                        let finalUrl = url;
+                                                        if (match && match[1]) {
+                                                            // Use thumbnail API (sz=w2000 for high efficiency)
+                                                            finalUrl = `https://drive.google.com/thumbnail?id=${match[1]}&sz=w2000`;
+                                                        }
+
+                                                        setFormData({ ...formData, image_url: finalUrl });
+                                                    }}
+                                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all text-sm"
+                                                    placeholder="https://example.com/image.jpg"
+                                                />
+                                                <p className="text-xs text-slate-400 mt-1">Supports direct links and Google Drive public links.</p>
+                                                {!formData.image_url && (
+                                                    <p className="text-xs text-red-500 mt-1 font-medium">Required for High Council roles.</p>
+                                                )}
+                                            </div>
                                         </div>
                                     ) : (
                                         <div className="border border-slate-100 rounded-xl p-6 bg-slate-50 text-center text-slate-400 text-sm">
                                             <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                                            Image upload is restricted to Chancellor and Vice-Chancellor only.
+                                            Image URL is restricted to High Council members only.
                                         </div>
                                     )}
 
