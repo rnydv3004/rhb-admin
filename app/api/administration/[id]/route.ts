@@ -39,12 +39,33 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 
         if (role_title) {
             const lowerTitle = role_title.toLowerCase();
+
+            // 1. Image Validation
             if ((lowerTitle.includes("chancellor") || lowerTitle.includes("vice-chancellor")) && !image_url) {
-                // If checking partial update, this logic might be flawed if image_url exists in DB but not body.
-                // However, standard dashboard forms usually send full payload. 
-                // Let's stricter check: if they are changing role to chancellor, they must provide image OR image must exist.
-                // For now, simpler validation: fail if provided role requires image and image is null/empty in payload.
                 return NextResponse.json({ message: "Image is mandatory for Chancellor and Vice-Chancellor" }, { status: 400 });
+            }
+
+            // 2. Uniqueness Validation
+            if (lowerTitle === "chancellor" || lowerTitle === "vice-chancellor") {
+                const existing = await query<any[]>(
+                    "SELECT id FROM royal_administration WHERE role_title = ? AND id != ?",
+                    [role_title, id]
+                );
+
+                if (existing.length > 0) {
+                    return NextResponse.json({
+                        message: `A ${role_title} already exists. Only one is allowed.`
+                    }, { status: 400 });
+                }
+            }
+        }
+
+        // 3. Clear Image if not High Council (Strict enforcement)
+        let finalImageUrl = image_url;
+        if (role_title) {
+            const lowerTitle = role_title.toLowerCase();
+            if (!lowerTitle.includes("chancellor") && !lowerTitle.includes("vice-chancellor")) {
+                finalImageUrl = null;
             }
         }
 
@@ -66,7 +87,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
                 display_order,
                 is_active,
                 bio || null,
-                image_url || null,
+                finalImageUrl || null,
                 id
             ]
         );

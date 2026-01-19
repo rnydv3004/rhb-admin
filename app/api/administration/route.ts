@@ -23,14 +23,14 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { 
-            name, 
-            role_title, 
-            category, 
-            display_order, 
-            is_active, 
-            bio, 
-            image_url 
+        const {
+            name,
+            role_title,
+            category,
+            display_order,
+            is_active,
+            bio,
+            image_url
         } = body;
 
         if (!role_title || !category) {
@@ -39,8 +39,33 @@ export async function POST(req: Request) {
 
         // Validation for Chancellor/Vice-Chancellor image requirement
         const lowerTitle = role_title.toLowerCase();
+
+        // 1. Image Validation
         if ((lowerTitle.includes("chancellor") || lowerTitle.includes("vice-chancellor")) && !image_url) {
             return NextResponse.json({ message: "Image is mandatory for Chancellor and Vice-Chancellor" }, { status: 400 });
+        }
+
+        // 2. Uniqueness Validation
+        // Only enforce singular "Chancellor" and "Vice-Chancellor" if exact match (case-insensitive)
+        if (lowerTitle === "chancellor" || lowerTitle === "vice-chancellor") {
+            const existing = await query<any[]>(
+                "SELECT id FROM royal_administration WHERE role_title = ?",
+                [role_title] // Check exact or case-insensitive depend on DB collation. Usually CI default.
+            );
+
+            // To be stricter, let's just check lower case comparison in SQL or JS filter if needed, 
+            // but standard MySQL is CI.
+            if (existing.length > 0) {
+                return NextResponse.json({
+                    message: `A ${role_title} already exists. Only one is allowed.`
+                }, { status: 400 });
+            }
+        }
+
+        // 3. Clear Image if not High Council (Strict enforcement)
+        let finalImageUrl = image_url;
+        if (!lowerTitle.includes("chancellor") && !lowerTitle.includes("vice-chancellor")) {
+            finalImageUrl = null;
         }
 
         const result = await query<any>(
@@ -48,13 +73,13 @@ export async function POST(req: Request) {
             (name, role_title, category, display_order, is_active, bio, image_url, created_at, updated_at) 
             VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
             [
-                name || null, 
-                role_title, 
-                category, 
-                display_order || 0, 
-                is_active !== undefined ? is_active : 1, 
-                bio || null, 
-                image_url || null
+                name || null,
+                role_title,
+                category,
+                display_order || 0,
+                is_active !== undefined ? is_active : 1,
+                bio || null,
+                finalImageUrl || null
             ]
         );
 
