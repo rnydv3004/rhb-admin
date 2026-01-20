@@ -140,8 +140,7 @@ export default function AdministrationPage() {
     };
 
     // Helper to check mandatory fields for validation UI
-    const isChancellor = formData.role_title.toLowerCase().includes("grand-chancellor") ||
-        formData.role_title.toLowerCase().includes("vice-chancellor");
+    const isChancellor = formData.role_title.toLowerCase().includes("chancellor");
 
     return (
         <div className="p-8 max-w-7xl mx-auto min-h-screen font-sans">
@@ -177,13 +176,21 @@ export default function AdministrationPage() {
             ) : (
                 <div className="space-y-12">
                     {/* High Council Section */}
-                    {members.filter(m => ["grand-chancellor", "vice-chancellor"].includes(m.role_title.toLowerCase())).length > 0 && (
+                    {members.filter(m => m.role_title.toLowerCase().includes("chancellor")).length > 0 && (
                         <div>
                             <h2 className="text-xl font-serif font-bold text-blue-950 mb-4 border-b border-yellow-500/30 pb-2 inline-block">The High Council</h2>
-                            <div className="grid md:grid-cols-2 gap-6">
+                            <div className="grid md:grid-cols-3 gap-6">
                                 {members
-                                    .filter(m => ["grand-chancellor", "vice-chancellor"].includes(m.role_title.toLowerCase()))
-                                    .sort((a, b) => a.role_title.toLowerCase() === "grand-chancellor" ? -1 : 1) // Ensure Grand Chancellor is first
+                                    .filter(m => m.role_title.toLowerCase().includes("chancellor"))
+                                    .sort((a, b) => {
+                                        const getRank = (t: string) => {
+                                            const lower = t.toLowerCase();
+                                            if (lower.includes("grand")) return 1;
+                                            if (lower.includes("vice")) return 2;
+                                            return 3;
+                                        };
+                                        return getRank(a.role_title) - getRank(b.role_title);
+                                    })
                                     .map(member => (
                                         <div key={member.id} className="bg-white rounded-xl border border-yellow-200 shadow-lg shadow-yellow-900/5 p-6 flex items-center gap-6 relative overflow-hidden group">
                                             <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
@@ -225,7 +232,7 @@ export default function AdministrationPage() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    {members.filter(m => !["grand-chancellor", "vice-chancellor"].includes(m.role_title.toLowerCase())).map((member, index) => (
+                                    {members.filter(m => !m.role_title.toLowerCase().includes("chancellor")).map((member, index) => (
                                         <tr key={member.id} className="hover:bg-slate-50 transition-colors group">
                                             <td className="p-4 text-slate-400 font-mono text-xs">{member.id}</td>
                                             <td className="p-4 text-slate-600 font-semibold">{member.display_order}</td>
@@ -288,7 +295,7 @@ export default function AdministrationPage() {
                                             </td>
                                         </tr>
                                     ))}
-                                    {members.filter(m => !["grand-chancellor", "vice-chancellor"].includes(m.role_title.toLowerCase())).length === 0 && (
+                                    {members.filter(m => !m.role_title.toLowerCase().includes("chancellor")).length === 0 && (
                                         <tr>
                                             <td colSpan={7} className="p-8 text-center text-slate-400">
                                                 No administration members found.
@@ -406,7 +413,7 @@ export default function AdministrationPage() {
                                             value={formData.role_title}
                                             onChange={e => {
                                                 const newTitle = e.target.value;
-                                                const isHigh = newTitle.toLowerCase().includes("grand-chancellor") || newTitle.toLowerCase().includes("vice-chancellor");
+                                                const isHigh = newTitle.toLowerCase().includes("chancellor");
                                                 setFormData({
                                                     ...formData,
                                                     role_title: newTitle,
