@@ -217,7 +217,7 @@ export default function AdministrationPage() {
                                     <tr>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">#</th>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Order</th>
-                                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Image</th>
+                                        {/* <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Image</th> */}
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Name / Title</th>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Category</th>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
@@ -229,7 +229,7 @@ export default function AdministrationPage() {
                                         <tr key={member.id} className="hover:bg-slate-50 transition-colors group">
                                             <td className="p-4 text-slate-400 font-mono text-xs">{member.id}</td>
                                             <td className="p-4 text-slate-600 font-semibold">{member.display_order}</td>
-                                            <td className="p-4">
+                                            {/* <td className="p-4">
                                                 <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden relative border border-slate-200">
                                                     {member.image_url ? (
                                                         <Image
@@ -244,7 +244,7 @@ export default function AdministrationPage() {
                                                         </div>
                                                     )}
                                                 </div>
-                                            </td>
+                                            </td> */}
                                             <td className="p-4">
                                                 <div className="font-bold text-slate-800">{member.name || "—"}</div>
                                                 <div className="text-xs text-blue-600 font-medium">{member.role_title}</div>
