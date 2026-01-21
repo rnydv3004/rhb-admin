@@ -41,8 +41,8 @@ export async function POST(req: Request) {
         const lowerTitle = role_title.toLowerCase();
 
         // 1. Image Validation
-        if ((lowerTitle.includes("grand chancellor") || lowerTitle.includes("vice-chancellor")) && !image_url) {
-            return NextResponse.json({ message: "Image is mandatory for Grand Chancellor and Vice-Chancellor" }, { status: 400 });
+        if (lowerTitle.includes("chancellor") && !image_url) {
+            return NextResponse.json({ message: "Image is mandatory for Chancellors" }, { status: 400 });
         }
 
         // 2. Uniqueness Validation
@@ -63,8 +63,10 @@ export async function POST(req: Request) {
         }
 
         // 3. Clear Image if not High Council (Strict enforcement) & Convert Drive Links
+
+
         let finalImageUrl = image_url;
-        if (!lowerTitle.includes("grand chancellor") && !lowerTitle.includes("vice-chancellor")) {
+        if (!lowerTitle.includes("chancellor")) {
             finalImageUrl = null;
         } else if (finalImageUrl) {
             // Google Drive Link Converter (Serverside fallback)

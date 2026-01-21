@@ -179,7 +179,7 @@ export default function AdministrationPage() {
                     {members.filter(m => m.role_title.toLowerCase().includes("chancellor")).length > 0 && (
                         <div>
                             <h2 className="text-xl font-serif font-bold text-blue-950 mb-4 border-b border-yellow-500/30 pb-2 inline-block">The High Council</h2>
-                            <div className="grid md:grid-cols-3 gap-6">
+                            <div className="grid md:grid-cols-2 gap-6">
                                 {members
                                     .filter(m => m.role_title.toLowerCase().includes("chancellor"))
                                     .sort((a, b) => {
@@ -473,7 +473,7 @@ export default function AdministrationPage() {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting || (isChancellor && !formData.image_url)}
+                                    disabled={isSubmitting || (isChancellor)}
                                     className="bg-blue-900 text-white px-8 py-2 rounded-lg font-bold hover:bg-blue-800 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-blue-900/10"
                                 >
                                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? "Update Member" : "Add Member")}

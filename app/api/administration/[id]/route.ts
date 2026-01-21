@@ -41,8 +41,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
             const lowerTitle = role_title.toLowerCase();
 
             // 1. Image Validation
-            if ((lowerTitle.includes("grand chancellor") || lowerTitle.includes("vice-chancellor")) && !image_url) {
-                return NextResponse.json({ message: "Image is mandatory for Grand Chancellor and Vice-Chancellor" }, { status: 400 });
+            if (lowerTitle.includes("chancellor") && !image_url) {
+                return NextResponse.json({ message: "Image is mandatory for Chancellors" }, { status: 400 });
             }
 
             // 2. Uniqueness Validation
@@ -64,7 +64,8 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         let finalImageUrl = image_url;
         if (role_title) {
             const lowerTitle = role_title.toLowerCase();
-            if (!lowerTitle.includes("grand chancellor") && !lowerTitle.includes("vice-chancellor")) {
+            // Match frontend logic: allow image for any "chancellor" role
+            if (!lowerTitle.includes("chancellor")) {
                 finalImageUrl = null;
             } else if (finalImageUrl) {
                 // Google Drive Link Converter (Serverside fallback)
