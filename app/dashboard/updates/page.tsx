@@ -136,10 +136,13 @@ export default function UpdatesPage() {
                                         const res = await fetch(`/api/updates/${update.id}`, { method: "DELETE" });
                                         if (res.ok) {
                                             setUpdates(prev => prev.filter(u => u.id !== update.id));
+                                        } else {
+                                            const errorData = await res.json();
+                                            alert(`Failed to delete: ${errorData.message || "Unknown error"}`);
                                         }
                                     } catch (e) {
                                         console.error(e);
-                                        alert("Failed to delete");
+                                        alert("Failed to delete due to a network or system error.");
                                     }
                                 }}
                                 className="p-2 bg-red-50 text-red-600 rounded-full hover:bg-red-100"
