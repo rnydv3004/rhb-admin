@@ -66,7 +66,7 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
         const { id } = await params;
 
         // Optional: Delete associated media first
-        await query("DELETE FROM media_files WHERE update_id = ?", [id]);
+        // await query("DELETE FROM media_files WHERE update_id = ?", [id]);
 
         // Delete the update
         await query("DELETE FROM app_updates WHERE id = ?", [id]);
