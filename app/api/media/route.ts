@@ -48,12 +48,13 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
     try {
-        const { id, file_type } = await req.json();
+        const { id, file_type, title, subTitle, description, file_url } = await req.json();
 
         if (!id || !file_type) {
             return NextResponse.json({ message: "ID and Type required" }, { status: 400 });
         }
 
+        // Check limits if changing to featured type
         if (file_type === 'FIMG') {
             const count = await query<any[]>("SELECT COUNT(*) as c FROM media_files WHERE file_type = 'FIMG' AND id != ?", [id]);
             if (count[0].c >= 4) {
@@ -68,8 +69,11 @@ export async function PUT(req: Request) {
             }
         }
 
-        await query("UPDATE media_files SET file_type = ? WHERE id = ?", [file_type, id]);
-        return NextResponse.json({ message: "Media type updated" });
+        await query(
+            "UPDATE media_files SET file_type = ?, title = ?, subTitle = ?, description = ?, file_url = ? WHERE id = ?",
+            [file_type, title || '', subTitle || '', description || '', file_url || '', id]
+        );
+        return NextResponse.json({ message: "Media updated successfully" });
 
     } catch (error) {
         return NextResponse.json({ message: "Update failed" }, { status: 500 });

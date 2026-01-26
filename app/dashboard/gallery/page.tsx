@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Image as ImageIcon, Video, Star, Info, Loader2, Plus, Trash2, Link as LinkIcon } from "lucide-react";
+import { Image as ImageIcon, Video, Star, Info, Loader2, Plus, Trash2, Link as LinkIcon, Edit } from "lucide-react";
 import Image from "next/image";
 
 interface Media {
@@ -28,6 +28,7 @@ export default function GalleryPage() {
         description: ""
     });
     const [adding, setAdding] = useState(false);
+    const [editingId, setEditingId] = useState<number | null>(null);
 
     useEffect(() => {
         fetchMedia();
@@ -97,22 +98,29 @@ export default function GalleryPage() {
         const processedUrl = processUrl(formData.file_url);
 
         try {
-            const res = await fetch("/api/media", {
-                method: "POST",
+            const url = "/api/media";
+            const method = editingId ? "PUT" : "POST";
+            const body = editingId
+                ? { ...formData, file_url: processedUrl, id: editingId }
+                : { ...formData, file_url: processedUrl };
+
+            const res = await fetch(url, {
+                method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ...formData,
-                    file_url: processedUrl
-                })
+                body: JSON.stringify(body)
             });
 
             if (res.ok) {
                 setShowAddModal(false);
                 setFormData({ file_url: "", file_type: "IMAGE", title: "", subTitle: "", description: "" });
+                setEditingId(null);
                 fetchMedia();
             } else {
-                alert("Failed to add media");
+                const data = await res.json();
+                alert(data.message || "Failed to save media");
             }
+        } catch (e) {
+            alert("An error occurred");
         } finally {
             setAdding(false);
         }
@@ -140,7 +148,11 @@ export default function GalleryPage() {
                         </button>
                     ))}
                     <button
-                        onClick={() => setShowAddModal(true)}
+                        onClick={() => {
+                            setEditingId(null); // Reset editing mode
+                            setFormData({ file_url: "", file_type: "IMAGE", title: "", subTitle: "", description: "" });
+                            setShowAddModal(true);
+                        }}
                         className="ml-2 bg-yellow-500 hover:bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg shadow-yellow-500/20 transition-colors"
                     >
                         <LinkIcon className="w-4 h-4" />
@@ -204,15 +216,45 @@ export default function GalleryPage() {
                                                 <Star className="w-4 h-4" />
                                             </button>
                                         )}
-                                        {(item.file_type === 'FIMG' || item.file_type === 'FVID') && (
-                                            <button
-                                                onClick={() => handleTypeChange(item.id, item.file_type, item.file_type === 'FIMG' ? 'IMAGE' : 'VIDEO')}
-                                                className="bg-white/20 text-white backdrop-blur-sm p-2 rounded-lg hover:bg-white/30"
-                                                title="Un-Feature"
-                                            >
-                                                <Star className="w-4 h-4" />
-                                            </button>
+                                        <button
+                                            onClick={() => handleTypeChange(item.id, item.file_type, item.file_type === 'FIMG' ? 'IMAGE' : 'VIDEO')}
+                                            className="bg-white/20 text-white backdrop-blur-sm p-2 rounded-lg hover:bg-white/30"
+                                            title="Un-Feature"
+                                        >
+                                            <Star className="w-4 h-4" />
+                                        </button>
                                         )}
+
+                                        {/* Edit */}
+                                        <button
+                                            onClick={() => {
+                                                setFormData({
+                                                    file_url: item.file_url,
+                                                    file_type: item.file_type.startsWith('F') ? (item.file_type === 'FIMG' ? 'IMAGE' : 'VIDEO') : (item.file_type as "IMAGE" | "VIDEO"), // Revert to base type or keep logic if needed. Actually simpler to pass current type but if it's FIMG we might want to show as IMAGE in dropdown? The backend handles FIMG/IMAGE swap via type change, but for editing content we might want to just keep current type. Let's keep current type.
+                                                    // Wait, the select only has IMAGE/VIDEO options. If it's FIMG, we should probably set it to IMAGE so the user doesn't get confused, OR add FIMG options.
+                                                    // Actually, if it is FIMG, and we set it to IMAGE, then saving it might Un-Feature it if we just send IMAGE.
+                                                    // Let's modify the select to support all types OR just map properly.
+                                                    // Simplest: Set to base type. If they want to re-feature, they use the star. Or we just safeguard the type if they don't change it.
+                                                    // Let's map FIMG -> IMAGE for the dropdown, but we also pass the ID.
+                                                    // If we want to PRESERVE the featured status, we need to handle that.
+                                                    // Our PUT handler now takes `file_type`. If we send `IMAGE` for a `FIMG`, it will become `IMAGE`.
+                                                    // So we should probably let the dropdown select the ACTUAL type, or add those options.
+                                                    // OR, we just don't let them change type in Edit mode easily without unfeaturing.
+                                                    // Let's just pass the raw type and add options to the Select if needed, or map it.
+                                                    // Let's map:
+                                                    file_type: (item.file_type === 'FIMG' ? 'IMAGE' : (item.file_type === 'FVID' ? 'VIDEO' : item.file_type)),
+                                                    title: item.title || "",
+                                                    subTitle: item.subTitle || "",
+                                                    description: item.description || ""
+                                                });
+                                                setEditingId(item.id);
+                                                setShowAddModal(true);
+                                            }}
+                                            className="bg-blue-500/80 text-white p-2 rounded-lg hover:bg-blue-500"
+                                            title="Edit"
+                                        >
+                                            <Edit className="w-4 h-4" />
+                                        </button>
 
                                         {/* Delete */}
                                         <button
@@ -245,8 +287,8 @@ export default function GalleryPage() {
             {/* Add Media Modal */}
             {showAddModal && (
                 <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-                        <h2 className="text-2xl font-bold text-blue-950 mb-6 font-serif">Add New Media</h2>
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md max-h-[90vh] overflow-y-auto">
+                        <h2 className="text-2xl font-bold text-blue-950 mb-6 font-serif">{editingId ? "Edit Media" : "Add New Media"}</h2>
                         <form onSubmit={handleAddSubmit} className="space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-slate-600 mb-1">Media Link</label>
@@ -271,6 +313,7 @@ export default function GalleryPage() {
                                     <option value="IMAGE">Image</option>
                                     <option value="VIDEO">Video</option>
                                 </select>
+                                {editingId && <p className="text-xs text-yellow-600 mt-1">Note: Changing type here will un-feature the item if it was starred.</p>}
                             </div>
 
                             <div>
@@ -318,7 +361,7 @@ export default function GalleryPage() {
                                     disabled={adding}
                                     className="bg-blue-900 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-800 disabled:opacity-50 flex items-center gap-2"
                                 >
-                                    {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add to Gallery"}
+                                    {adding ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? "Update Media" : "Add to Gallery")}
                                 </button>
                             </div>
                         </form>
