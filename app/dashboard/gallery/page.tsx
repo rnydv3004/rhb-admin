@@ -9,6 +9,7 @@ interface Media {
     file_url: string;
     file_type: "IMAGE" | "VIDEO" | "FIMG" | "FVID";
     title?: string;
+    subTitle?: string;
     description?: string;
 }
 
@@ -23,6 +24,7 @@ export default function GalleryPage() {
         file_url: "",
         file_type: "IMAGE",
         title: "",
+        subTitle: "",
         description: ""
     });
     const [adding, setAdding] = useState(false);
@@ -106,7 +108,7 @@ export default function GalleryPage() {
 
             if (res.ok) {
                 setShowAddModal(false);
-                setFormData({ file_url: "", file_type: "IMAGE", title: "", description: "" });
+                setFormData({ file_url: "", file_type: "IMAGE", title: "", subTitle: "", description: "" });
                 fetchMedia();
             } else {
                 alert("Failed to add media");
@@ -190,7 +192,7 @@ export default function GalleryPage() {
                                 )}
 
                                 {/* Hover Overlay Controls */}
-                                <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 to-transparent flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="absolute inset-x-0 bottom-0 p-4 bg-linear-to-t from-black/80 to-transparent flex justify-between items-end opacity-0 group-hover:opacity-100 transition-opacity">
                                     <div className="flex gap-2">
                                         {/* Toggle Feature */}
                                         {(item.file_type === 'IMAGE' || item.file_type === 'VIDEO') && (
@@ -226,7 +228,8 @@ export default function GalleryPage() {
 
                             {/* Visible Content Below */}
                             <div className="p-4 flex-1 flex flex-col">
-                                <h3 className="font-bold text-slate-800 line-clamp-1 mb-1">{item.title || "Untitled Media"}</h3>
+                                <h3 className="font-bold text-slate-800 line-clamp-1">{item.title || "Untitled Media"}</h3>
+                                {item.subTitle && <p className="text-xs text-blue-600 font-medium mb-1 line-clamp-1">{item.subTitle}</p>}
                                 <p className="text-sm text-slate-500 line-clamp-2 mb-3 flex-1">{item.description || "No description provided."}</p>
 
                                 <div className="mt-auto pt-3 border-t border-slate-50 flex justify-between items-center text-xs">
@@ -277,6 +280,17 @@ export default function GalleryPage() {
                                     value={formData.title}
                                     onChange={e => setFormData({ ...formData, title: e.target.value })}
                                     placeholder="e.g. Royal Banquet"
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-600 mb-1">Sub Title</label>
+                                <input
+                                    type="text"
+                                    value={formData.subTitle}
+                                    onChange={e => setFormData({ ...formData, subTitle: e.target.value })}
+                                    placeholder="e.g. A Night to Remember"
                                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5"
                                 />
                             </div>

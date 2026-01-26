@@ -30,13 +30,13 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
     try {
         const body = await req.json();
-        const { file_url, file_type, title, description } = body;
+        const { file_url, file_type, title, subTitle, description } = body;
 
         if (!file_url) return NextResponse.json({ message: "URL required" }, { status: 400 });
 
         await query(
-            "INSERT INTO media_files (file_url, file_type, is_primary, title, description) VALUES (?, ?, 0, ?, ?)",
-            [file_url, file_type || 'IMAGE', title || '', description || '']
+            "INSERT INTO media_files (file_url, file_type, is_primary, title, subTitle, description) VALUES (?, ?, 0, ?, ?, ?)",
+            [file_url, file_type || 'IMAGE', title || '', subTitle || '', description || '']
         );
 
         return NextResponse.json({ message: "Media added" });
