@@ -216,13 +216,14 @@ export default function GalleryPage() {
                                                 <Star className="w-4 h-4" />
                                             </button>
                                         )}
-                                        <button
-                                            onClick={() => handleTypeChange(item.id, item.file_type, item.file_type === 'FIMG' ? 'IMAGE' : 'VIDEO')}
-                                            className="bg-white/20 text-white backdrop-blur-sm p-2 rounded-lg hover:bg-white/30"
-                                            title="Un-Feature"
-                                        >
-                                            <Star className="w-4 h-4" />
-                                        </button>
+                                        {(item.file_type === 'FIMG' || item.file_type === 'FVID') && (
+                                            <button
+                                                onClick={() => handleTypeChange(item.id, item.file_type, item.file_type === 'FIMG' ? 'IMAGE' : 'VIDEO')}
+                                                className="bg-white/20 text-white backdrop-blur-sm p-2 rounded-lg hover:bg-white/30"
+                                                title="Un-Feature"
+                                            >
+                                                <Star className="w-4 h-4" />
+                                            </button>
                                         )}
 
                                         {/* Edit */}
