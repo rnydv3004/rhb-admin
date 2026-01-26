@@ -7,7 +7,7 @@ import Image from "next/image";
 interface Media {
     id: number;
     file_url: string;
-    file_type: "IMAGE" | "VIDEO" | "FIMG" | "FVID";
+    file_type: "IMAGE" | "VIDEO" | "FIMG" | "FVID" ;
     title?: string;
     subTitle?: string;
     description?: string;
@@ -231,18 +231,6 @@ export default function GalleryPage() {
                                             onClick={() => {
                                                 setFormData({
                                                     file_url: item.file_url,
-                                                    file_type: item.file_type.startsWith('F') ? (item.file_type === 'FIMG' ? 'IMAGE' : 'VIDEO') : (item.file_type as "IMAGE" | "VIDEO"), // Revert to base type or keep logic if needed. Actually simpler to pass current type but if it's FIMG we might want to show as IMAGE in dropdown? The backend handles FIMG/IMAGE swap via type change, but for editing content we might want to just keep current type. Let's keep current type.
-                                                    // Wait, the select only has IMAGE/VIDEO options. If it's FIMG, we should probably set it to IMAGE so the user doesn't get confused, OR add FIMG options.
-                                                    // Actually, if it is FIMG, and we set it to IMAGE, then saving it might Un-Feature it if we just send IMAGE.
-                                                    // Let's modify the select to support all types OR just map properly.
-                                                    // Simplest: Set to base type. If they want to re-feature, they use the star. Or we just safeguard the type if they don't change it.
-                                                    // Let's map FIMG -> IMAGE for the dropdown, but we also pass the ID.
-                                                    // If we want to PRESERVE the featured status, we need to handle that.
-                                                    // Our PUT handler now takes `file_type`. If we send `IMAGE` for a `FIMG`, it will become `IMAGE`.
-                                                    // So we should probably let the dropdown select the ACTUAL type, or add those options.
-                                                    // OR, we just don't let them change type in Edit mode easily without unfeaturing.
-                                                    // Let's just pass the raw type and add options to the Select if needed, or map it.
-                                                    // Let's map:
                                                     file_type: (item.file_type === 'FIMG' ? 'IMAGE' : (item.file_type === 'FVID' ? 'VIDEO' : item.file_type)),
                                                     title: item.title || "",
                                                     subTitle: item.subTitle || "",
