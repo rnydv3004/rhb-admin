@@ -347,7 +347,7 @@ export default function AdministrationPage() {
                                             )}
 
                                             <div>
-                                                <label className="block text-sm font-medium text-slate-700 mb-1">Image URL <span className="text-red-500">*</span></label>
+                                                <label className="block text-sm font-medium text-slate-700 mb-1">Image URL</label>
                                                 <input
                                                     type="url"
                                                     value={formData.image_url}
@@ -369,9 +369,6 @@ export default function AdministrationPage() {
                                                     placeholder="https://example.com/image.jpg"
                                                 />
                                                 <p className="text-xs text-slate-400 mt-1">Supports direct links and Google Drive public links.</p>
-                                                {!formData.image_url && (
-                                                    <p className="text-xs text-red-500 mt-1 font-medium">Required for High Council roles.</p>
-                                                )}
                                             </div>
                                         </div>
                                     ) : (
@@ -473,7 +470,7 @@ export default function AdministrationPage() {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={isSubmitting || (isChancellor)}
+                                    disabled={isSubmitting}
                                     className="bg-blue-900 text-white px-8 py-2 rounded-lg font-bold hover:bg-blue-800 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-blue-900/10"
                                 >
                                     {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingId ? "Update Member" : "Add Member")}

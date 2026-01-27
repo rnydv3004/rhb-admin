@@ -40,10 +40,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
         if (role_title) {
             const lowerTitle = role_title.toLowerCase();
 
-            // 1. Image Validation
-            if (lowerTitle.includes("chancellor") && !image_url) {
-                return NextResponse.json({ message: "Image is mandatory for Chancellors" }, { status: 400 });
-            }
+            // 1. Image Validation (Removed: Optional now)
+            // if (lowerTitle.includes("chancellor") && !image_url) {
+            //     return NextResponse.json({ message: "Image is mandatory for Chancellors" }, { status: 400 });
+            // }
 
             // 2. Uniqueness Validation
             if (lowerTitle === "grand chancellor" || lowerTitle === "vice-chancellor") {

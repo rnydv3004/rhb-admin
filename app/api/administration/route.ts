@@ -40,10 +40,10 @@ export async function POST(req: Request) {
         // Validation for Chancellor/Vice-Chancellor image requirement
         const lowerTitle = role_title.toLowerCase();
 
-        // 1. Image Validation
-        if (lowerTitle.includes("chancellor") && !image_url) {
-            return NextResponse.json({ message: "Image is mandatory for Chancellors" }, { status: 400 });
-        }
+        // 1. Image Validation (Removed: Optional now)
+        // if (lowerTitle.includes("chancellor") && !image_url) {
+        //     return NextResponse.json({ message: "Image is mandatory for Chancellors" }, { status: 400 });
+        // }
 
         // 2. Uniqueness Validation
         // Only enforce singular "Chancellor" and "Vice-Chancellor" if exact match (case-insensitive)
