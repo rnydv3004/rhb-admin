@@ -44,6 +44,14 @@ export default function DashboardPage() {
             color: "bg-amber-50 text-amber-700 border-amber-200",
             iconColor: "text-amber-600",
         },
+        {
+            title: "Royal Family",
+            description: "Manage head, heirs, and core family details.",
+            icon: Users,
+            href: "/dashboard/royal-family",
+            color: "bg-rose-50 text-rose-700 border-rose-200",
+            iconColor: "text-rose-600",
+        },
     ];
 
     return (

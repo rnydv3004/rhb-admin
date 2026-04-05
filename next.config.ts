@@ -6,12 +6,12 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "drive.google.com",
+        hostname: "**",
       },
       {
-        protocol: "https",
-        hostname: "*",
-      }
+        protocol: "http",
+        hostname: "**",
+      },
     ],
   },
 };
