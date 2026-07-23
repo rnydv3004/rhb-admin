@@ -21,6 +21,16 @@ interface RoyalMember {
     updated_at: string;
 }
 
+const processDriveUrl = (url: string | null | undefined): string => {
+    if (!url) return "";
+    const driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=|uc\?export=download&id=)|docs\.google\.com\/file\/d\/)([-_\w]+)/;
+    const match = url.match(driveRegex);
+    if (match && match[1]) {
+        return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w2000`;
+    }
+    return url;
+};
+
 export default function RoyalFamilyPage() {
     const [members, setMembers] = useState<RoyalMember[]>([]);
     const [loading, setLoading] = useState(true);
@@ -196,7 +206,7 @@ export default function RoyalFamilyPage() {
                                             <td className="p-4">
                                                 <div className="w-14 h-14 rounded-xl bg-slate-100 overflow-hidden relative border border-slate-200 shadow-inner">
                                                     {member.image_url ? (
-                                                        <Image src={member.image_url} alt={member.full_name} fill className="object-cover" />
+                                                        <Image src={processDriveUrl(member.image_url)} alt={member.full_name} fill className="object-cover" unoptimized={true} />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-slate-300"><ImageIcon className="w-6 h-6" /></div>
                                                     )}

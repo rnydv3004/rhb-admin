@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Newspaper, Image as ImageIcon, Users, LogOut, Crown } from "lucide-react";
+import { Newspaper, Image as ImageIcon, Users, LogOut, Crown, Settings } from "lucide-react";
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -51,6 +51,14 @@ export default function DashboardPage() {
             href: "/dashboard/royal-family",
             color: "bg-rose-50 text-rose-700 border-rose-200",
             iconColor: "text-rose-600",
+        },
+        {
+            title: "Settings",
+            description: "Manage site-wide assets and configuration like family tree.",
+            icon: Settings,
+            href: "/dashboard/settings",
+            color: "bg-slate-100 text-slate-700 border-slate-200",
+            iconColor: "text-slate-600",
         },
     ];
 

@@ -17,6 +17,16 @@ interface Member {
     updated_at: string;
 }
 
+const processDriveUrl = (url: string | null | undefined): string => {
+    if (!url) return "";
+    const driveRegex = /(?:drive\.google\.com\/(?:file\/d\/|open\?id=|uc\?id=|uc\?export=download&id=)|docs\.google\.com\/file\/d\/)([-_\w]+)/;
+    const match = url.match(driveRegex);
+    if (match && match[1]) {
+        return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w2000`;
+    }
+    return url;
+};
+
 export default function AdministrationPage() {
     const [members, setMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState(true);
@@ -199,7 +209,7 @@ export default function AdministrationPage() {
                                             </div>
                                             <div className="w-24 h-24 rounded-full border-4 border-yellow-50 shadow-inner overflow-hidden flex-shrink-0 relative">
                                                 {member.image_url ? (
-                                                    <Image src={member.image_url} alt={member.name} fill className="object-cover" />
+                                                    <Image src={processDriveUrl(member.image_url)} alt={member.name} fill className="object-cover" unoptimized={true} />
                                                 ) : (
                                                     <div className="w-full h-full bg-slate-100 flex items-center justify-center"><ImageIcon className="w-8 h-8 text-slate-300" /></div>
                                                 )}
@@ -224,7 +234,7 @@ export default function AdministrationPage() {
                                     <tr>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">#</th>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Order</th>
-                                        {/* <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Image</th> */}
+                                        <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Image</th>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Name / Title</th>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Category</th>
                                         <th className="p-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
@@ -236,14 +246,15 @@ export default function AdministrationPage() {
                                         <tr key={member.id} className="hover:bg-slate-50 transition-colors group">
                                             <td className="p-4 text-slate-400 font-mono text-xs">{member.id}</td>
                                             <td className="p-4 text-slate-600 font-semibold">{member.display_order}</td>
-                                            {/* <td className="p-4">
+                                            <td className="p-4">
                                                 <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden relative border border-slate-200">
                                                     {member.image_url ? (
                                                         <Image
-                                                            src={member.image_url}
+                                                            src={processDriveUrl(member.image_url)}
                                                             alt={member.name}
                                                             fill
                                                             className="object-cover"
+                                                            unoptimized={true}
                                                         />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center text-slate-300">
@@ -251,7 +262,7 @@ export default function AdministrationPage() {
                                                         </div>
                                                     )}
                                                 </div>
-                                            </td> */}
+                                            </td>
                                             <td className="p-4">
                                                 <div className="font-bold text-slate-800">{member.name || "—"}</div>
                                                 <div className="text-xs text-blue-600 font-medium">{member.role_title}</div>
